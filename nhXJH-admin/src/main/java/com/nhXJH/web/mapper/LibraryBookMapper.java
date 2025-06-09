@@ -69,5 +69,6 @@ public interface LibraryBookMapper  extends BaseMapper<LibraryBook> {
      * @param operator 操作人id
      * @return 结果
      */
-    public int deleteLibraryBookByIds(Long[] ids,Long operator);
+//    public int deleteLibraryBookByIds(Long[] ids,Long operator);
+    public int deleteLibraryBookByIds(@Param("ids") List<Long> ids, @Param("operator") Long operator);
 }

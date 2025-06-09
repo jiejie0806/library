@@ -17,9 +17,6 @@
         <span slot="label"><i class="el-icon-date"></i> 归还记录</span>
         <back-log-list ref="fourth"/>
       </el-tab-pane>
-      <el-tab-pane name="five">
-        <span slot="label"><i class="el-icon-s-custom"></i> 与我相关</span>
-      </el-tab-pane>
     </el-tabs>
   </div>
 </template>

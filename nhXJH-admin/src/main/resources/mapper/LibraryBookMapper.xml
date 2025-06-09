@@ -200,7 +200,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="deleteLibraryBookByIds" parameterType="String">
         update library_book
         set is_del = '1',update_time = now() ,update_personal = #{operator} where id in
-        <foreach item="id" collection="array" open="(" separator="," close=")">
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
             #{id}
         </foreach>
     </update>

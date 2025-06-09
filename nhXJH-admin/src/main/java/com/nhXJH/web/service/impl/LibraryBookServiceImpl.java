@@ -300,8 +300,14 @@ public class LibraryBookServiceImpl extends ServiceImpl<LibraryBookMapper, Libra
      * @return 结果
      */
     @Override
-    public int deleteLibraryBookByIds(Long[] ids,Long operator) {
-        return libraryBookMapper.deleteLibraryBookByIds(ids,operator);
+//    public int deleteLibraryBookByIds(Long[] ids,Long operator) {
+//        return libraryBookMapper.deleteLibraryBookByIds(ids,operator);
+//    }
+
+    public int deleteLibraryBookByIds(Long[] ids, Long operator) {
+        // 将数组转换为 List
+        List<Long> idList = Arrays.asList(ids);
+        return libraryBookMapper.deleteLibraryBookByIds(idList, operator);
     }
 
     /**
