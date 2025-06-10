@@ -27,7 +27,6 @@
     </el-form>
 
     <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" align="center" prop="noticeId" width="100" />
       <el-table-column
         label="公告标题"
@@ -54,7 +53,7 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
-            v-hasPermi="['system:notice:detail']"
+            v-hasPermi="['system:notice:query']"
             size="mini"
             type="text"
             icon="el-icon-view"
@@ -74,13 +73,14 @@
 
     <!-- 查看公告详情 -->
     <el-dialog :title="title" :visible.sync="open" width="780px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="24">
-            <div class="detail-content" v-html="form.noticeContent" />
-          </el-col>
-        </el-row>
-      </el-form>
+      <div class="dialog-content">
+        <div class="dialog-noticeTitle">{{ detailData.noticeTitle }}</div>
+        <div class="dialog-time">
+          <div>{{ detailData.createTime }}</div>
+          <div>来源：{{ detailData.createBy }}</div>
+        </div>
+        <div class="dialog-noticeContent" v-html="detailData.noticeContent" />
+      </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="cancel">关闭</el-button>
       </div>
@@ -122,8 +122,6 @@ export default {
         createBy: undefined,
         status: undefined
       },
-      // 表单参数
-      form: {},
       // 表单校验
       rules: {
         noticeTitle: [
@@ -132,7 +130,8 @@ export default {
         noticeType: [
           { required: true, message: '公告类型不能为空', trigger: 'change' }
         ]
-      }
+      },
+      detailData: {}
     }
   },
   created() {
@@ -151,18 +150,7 @@ export default {
     // 关闭按钮
     cancel() {
       this.open = false
-      this.reset()
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        noticeId: undefined,
-        noticeTitle: undefined,
-        noticeType: undefined,
-        noticeContent: undefined,
-        status: '0'
-      }
-      this.resetForm('form')
+      this.detailData = {}
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -177,20 +165,39 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.noticeId)
-      this.single = selection.length != 1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
 
     /** 查看详情按钮操作 */
     handleDetail(row) {
-      this.reset()
       const noticeId = row.noticeId || this.ids
       getNotice(noticeId).then(response => {
-        this.form = response.data
         this.open = true
-        this.title = response.data.noticeTitle
+        this.detailData = response.data
       })
     }
   }
 }
 </script>
+
+<style lang='scss' scoped>
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  .dialog-noticeTitle {
+    color: #ff0033;
+    font-size: 24px;
+  }
+  .dialog-noticeContent {
+    text-indent: 24px;
+  }
+}
+.dialog-time {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="记录id" prop="id" v-if="false" label-width="120px">
+    <el-form v-show="showSearch" ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+      <el-form-item v-if="false" label="记录id" prop="id" label-width="120px">
         <el-input
           v-model="queryParams.id"
           placeholder="请输入记录id"
@@ -19,7 +19,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="采购申请人id" prop="approvePersonal" v-if="false" label-width="120px">
+      <el-form-item v-if="false" label="采购申请人id" prop="approvePersonal" label-width="120px">
         <el-input
           v-model="queryParams.approvePersonal"
           placeholder="请输入采购申请人id"
@@ -29,30 +29,36 @@
         />
       </el-form-item>
       <el-form-item label="采购开始时间" prop="startTime" label-width="120px">
-        <el-date-picker clearable size="small"
+        <el-date-picker
           v-model="queryParams.startTime"
+          clearable
+          size="small"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择采购开始时间">
-        </el-date-picker>
+          placeholder="选择采购开始时间"
+        />
       </el-form-item>
       <el-form-item label="采购结束时间" prop="endTime" label-width="120px">
-        <el-date-picker clearable size="small"
+        <el-date-picker
           v-model="queryParams.endTime"
+          clearable
+          size="small"
           type="date"
           value-format="yyyy-MM-dd"
-          placeholder="选择采购结束时间">
-        </el-date-picker>
+          placeholder="选择采购结束时间"
+        />
       </el-form-item>
       <el-form-item label="有效期至" prop="termValidity" label-width="120px">
-        <el-date-picker clearable size="small"
+        <el-date-picker
           v-model="queryParams.termValidity"
+          clearable
+          size="small"
           type="datetime"
           value-format="yyyy-MM-dd HH:mm:ss"
-          placeholder="选择有效期至">
-        </el-date-picker>
+          placeholder="选择有效期至"
+        />
       </el-form-item>
-      <el-form-item label="记录状态" prop="status" v-if="false" label-width="120px">
+      <el-form-item v-if="false" label="记录状态" prop="status" label-width="120px">
         <el-select v-model="queryParams.status" placeholder="请选择记录状态" clearable size="small">
           <el-option
             v-for="dict in dict.type.base_status"
@@ -71,97 +77,99 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['userApplication:purchase:add']"
           type="primary"
           plain
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['userApplication:purchase:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['userApplication:purchase:edit']"
           type="success"
           plain
           icon="el-icon-edit"
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['userApplication:purchase:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['userApplication:purchase:remove']"
           type="danger"
           plain
           icon="el-icon-delete"
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['userApplication:purchase:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['userApplication:purchase:export']"
           type="warning"
           plain
           icon="el-icon-download"
           size="mini"
           @click="handleExport"
-          v-hasPermi="['userApplication:purchase:export']"
         >导出</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar :show-search.sync="showSearch" @queryTable="getList" />
     </el-row>
 
     <el-table
       id="tab"
-      class="parent-table"
       v-loading="loading"
+      class="parent-table"
       :data="purchaseList"
-      @selection-change="handleSelectionChange"
-      @row-click="clickTable"
       :row-key="getRowKeys"
       :expand-row-keys="expands"
-      @expand-change="expandSelect">
-      <el-table-column type="selection" width="55" align="center" v-if="false"/>
+      @selection-change="handleSelectionChange"
+      @row-click="clickTable"
+      @expand-change="expandSelect"
+    >
+      <el-table-column v-if="false" type="selection" width="55" align="center" />
       <el-table-column type="expand">
         <template slot-scope="slot">
           <el-table
+            v-loading="purchaseSub.loading"
             class="sub-table"
             :data="purchaseSub.purchaseSubList"
-            v-loading="purchaseSub.loading">
+          >
             <el-table-column type="selection" width="55" align="center" />
-            <el-table-column label="主键" align="center" prop="id" v-if="false"/>
-            <el-table-column label="采购申请组" align="center" prop="groupId" v-if="false"/>
-            <el-table-column label="采购图书" align="center" prop="entityId" v-if="false"/>
+            <el-table-column v-if="false" label="主键" align="center" prop="id" />
+            <el-table-column v-if="false" label="采购申请组" align="center" prop="groupId" />
+            <el-table-column v-if="false" label="采购图书" align="center" prop="entityId" />
             <el-table-column label="采购图书名称" align="center" prop="entityName" />
-            <el-table-column label="采购数" align="center" prop="purchaseNumber" >
-             <template slot-scope="scope">
-               <span>{{scope.row.purchaseNumber}}({{scope.row.utilName}})</span>
-             </template>
-            </el-table-column>
-            <el-table-column label="计量单位" align="center" prop="util" v-if="false"/>
-            <el-table-column label="已处理" align="center" prop="purchaseOverNumber" >
+            <el-table-column label="采购数" align="center" prop="purchaseNumber">
               <template slot-scope="scope">
-                <span>{{scope.row.purchaseOverNumber}}({{scope.row.utilName}})</span>
+                <span>{{ scope.row.purchaseNumber }}({{ scope.row.utilName }})</span>
               </template>
             </el-table-column>
-            <el-table-column label="待处理" align="center" prop="purchaseOverNumber" >
+            <el-table-column v-if="false" label="计量单位" align="center" prop="util" />
+            <el-table-column label="已处理" align="center" prop="purchaseOverNumber">
               <template slot-scope="scope">
-                <span>{{ scope.row.purchaseNumber - scope.row.purchaseOverNumber}}({{scope.row.utilName}})</span>
+                <span>{{ scope.row.purchaseOverNumber }}({{ scope.row.utilName }})</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="待处理" align="center" prop="purchaseOverNumber">
+              <template slot-scope="scope">
+                <span>{{ scope.row.purchaseNumber - scope.row.purchaseOverNumber }}({{ scope.row.utilName }})</span>
               </template>
             </el-table-column>
             <el-table-column label="计量单位" align="center" prop="utilName" />
-            <el-table-column label="备注" align="center" prop="remark" v-if="false"/>
-            <el-table-column label="是否删除" align="center" prop="isDel" v-if="false"/>
+            <el-table-column v-if="false" label="备注" align="center" prop="remark" />
+            <el-table-column v-if="false" label="是否删除" align="center" prop="isDel" />
             <el-table-column label="状态" align="center" prop="status">
               <template slot-scope="slot">
-                <show-status :status="slot.row.status"/>
+                <show-status :status="slot.row.status" />
               </template>
             </el-table-column>
-            <el-table-column label="创建人" align="center" prop="createPersonal" v-if="false"/>
-            <el-table-column label="更新人" align="center" prop="updatePersonal" v-if="false"/>
+            <el-table-column v-if="false" label="创建人" align="center" prop="createPersonal" />
+            <el-table-column v-if="false" label="更新人" align="center" prop="updatePersonal" />
           </el-table>
           <pagination
             v-show="purchaseSub.page.total>0"
@@ -172,15 +180,15 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="记录" align="center" prop="id" v-if="false"/>
-      <el-table-column label="申请标题" align="center" prop="title" >
+      <el-table-column v-if="false" label="记录" align="center" prop="id" />
+      <el-table-column label="申请标题" align="center" prop="title">
         <template slot-scope="scope">
           <el-tooltip v-if="undefined != scope.row.title" :content="scope.row.title" placement="top">
-            <span>{{scope.row.title.substring(0,5)}}</span>
+            <span>{{ scope.row.title.substring(0,5) }}</span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="申请部门" align="center" prop="approveDept" v-if="false" />
+      <el-table-column v-if="false" label="申请部门" align="center" prop="approveDept" />
       <el-table-column label="开始时间" align="center" prop="startTime" width="180">
         <template slot-scope="scope">
           <el-tooltip v-if="undefined != scope.row.startTime" :content="scope.row.startTime" placement="top">
@@ -202,46 +210,46 @@
           <span>{{ parseTime(scope.row.termValidity, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="申请结果" align="center" prop="purchaseStatus" >
+      <el-table-column label="申请结果" align="center" prop="purchaseStatus">
         <template slot-scope="scope">
-          <approve-status-tag :status="scope.row.purchaseStatus"/>
+          <approve-status-tag :status="scope.row.purchaseStatus" />
         </template>
       </el-table-column>
-      <el-table-column label="说明" align="center" prop="mark" v-if="false" />
-      <el-table-column label="状态" align="center" prop="status" v-if="false">
+      <el-table-column v-if="false" label="说明" align="center" prop="mark" />
+      <el-table-column v-if="false" label="状态" align="center" prop="status">
         <template slot-scope="scope">
-          <ShowStatus  :status="scope.row.status"/>
+          <ShowStatus :status="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column label="创建人" align="center" prop="createPersonal" v-if="false" />
-      <el-table-column label="更新人" align="center" prop="updatePersonal"  v-if="false" />
+      <el-table-column v-if="false" label="创建人" align="center" prop="createPersonal" />
+      <el-table-column v-if="false" label="更新人" align="center" prop="updatePersonal" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope" >
+        <template slot-scope="scope">
           <el-button
+            v-if="scope.row.purchaseStatus!='0'"
+            v-hasPermi="['userApplication:purchase:edit']"
             size="mini"
             type="primary"
             icon="el-icon-share"
-            @click="handleBrowseLink(scope.row)"
-            v-if="scope.row.purchaseStatus!='0'"
             style="padding:5px;"
-            v-hasPermi="['userApplication:purchase:edit']"
+            @click="handleBrowseLink(scope.row)"
           >流程查看</el-button>
           <el-button
+            v-hasPermi="['userApplication:purchase:edit']"
             size="mini"
             type="text"
             :icon="scope.row.purchaseStatus=='0' && userId == scope.row.createPersonal?'el-icon-edit':'el-icon-view'"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['userApplication:purchase:edit']"
           >
-            {{scope.row.purchaseStatus=='0' && userId == scope.row.createPersonal?'修改':'详情'}}
+            {{ scope.row.purchaseStatus=='0' && userId == scope.row.createPersonal?'修改':'详情' }}
           </el-button>
           <el-button
             v-if="scope.row.purchaseStatus=='0' && userId == scope.row.createPersonal"
+            v-hasPermi="['userApplication:purchase:remove']"
             size="mini"
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['userApplication:purchase:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -255,32 +263,37 @@
       @pagination="getList"
     />
     <!-- 添加或修改采购申请信息对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="70%" append-to-body v-loading="purchaseForm.loading">
-      <el-form  ref="purchaseForm" label-width="100px"  class="demo-ruleForm" >
+    <el-dialog v-loading="purchaseForm.loading" :title="title" :visible.sync="open" width="70%" append-to-body>
+      <el-form ref="purchaseForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="申请标题" prop="purchase.title">
           <el-input
             v-if="isEdit"
             v-model="purchaseForm.purchase.title"
-            placeholder="请输入申请标题......"/>
-          <span v-if="!isEdit">{{purchaseForm.purchase.title}}</span>
+            placeholder="请输入申请标题......"
+          />
+          <span v-if="!isEdit">{{ purchaseForm.purchase.title }}</span>
         </el-form-item>
-        <el-form-item  label="申请部门" required>
+        <el-form-item label="申请部门" required>
           <el-input
             v-if="isEdit"
             v-model="purchaseForm.purchase.approveDeptName"
             placeholder="单击选择部门..."
-            @focus="openDeptDraw($event)" style="width: 50%;"/>
-          <span v-if="!isEdit">{{purchaseForm.purchase.approveDeptName}}</span>
+            style="width: 50%;"
+            @focus="openDeptDraw($event)"
+          />
+          <span v-if="!isEdit">{{ purchaseForm.purchase.approveDeptName }}</span>
         </el-form-item>
-        <el-form-item  label="审批流程" required>
+        <el-form-item label="审批流程" required>
           <el-input
             v-if="isEdit"
             v-model="purchaseForm.purchase.purchaseTemplateName"
             placeholder="单击选择审批流程..."
-            @focus="openPurchaseTemplateDraw($event)" style="width: 50%;" />
-          <span v-if="!isEdit">{{purchaseForm.purchase.purchaseTemplateName}}</span>
+            style="width: 50%;"
+            @focus="openPurchaseTemplateDraw($event)"
+          />
+          <span v-if="!isEdit">{{ purchaseForm.purchase.purchaseTemplateName }}</span>
         </el-form-item>
-        <el-form-item  label="截止日期" required>
+        <el-form-item label="截止日期" required>
           <el-date-picker
             v-if="isEdit"
             v-model="purchaseForm.purchase.termValidity"
@@ -288,66 +301,67 @@
             placeholder="选择日期时间"
             align="right"
             :picker-options="pickerOptions"
-            style="margin-right: 20px;">
-          </el-date-picker>
-          <span v-if="!isEdit">{{purchaseForm.purchase.termValidity}}</span>
+            style="margin-right: 20px;"
+          />
+          <span v-if="!isEdit">{{ purchaseForm.purchase.termValidity }}</span>
         </el-form-item>
         <el-form-item label="备注信息" prop="desc">
-          <el-input type="textarea" :readonly="!isEdit" v-model="purchaseForm.purchase.mark"></el-input>
+          <el-input v-model="purchaseForm.purchase.mark" type="textarea" :readonly="!isEdit" />
         </el-form-item>
         <el-form-item label="申请项目">
-          <el-row :gutter="10" class="mb8" v-if="isEdit">
+          <el-row v-if="isEdit" :gutter="10" class="mb8">
             <el-col :span="1.5">
               <el-button
+                v-hasPermi="['userApplication:purchaseSub:add']"
                 type="primary"
                 plain
                 icon="el-icon-plus"
                 size="mini"
                 @click="handleSubPurchaseAdd"
-                v-hasPermi="['userApplication:purchaseSub:add']"
               >新增</el-button>
             </el-col>
             <el-col :span="1.5">
               <el-button
+                v-hasPermi="['userApplication:purchaseSub:remove']"
                 type="danger"
                 plain
                 icon="el-icon-delete"
                 size="mini"
                 :disabled="appOrModify.multiple"
                 @click="handleSubPurchaseDeletes"
-                v-hasPermi="['userApplication:purchaseSub:remove']"
               >删除</el-button>
             </el-col>
             <el-col :span="1.5">
               <el-button
+                v-hasPermi="['userApplication:purchaseSub:export']"
                 type="warning"
                 plain
                 icon="el-icon-download"
                 size="mini"
                 @click="handleExport"
-                v-hasPermi="['userApplication:purchaseSub:export']"
               >导出</el-button>
             </el-col>
           </el-row>
           <el-table
+            v-loading="appOrModify.loading"
             :data="purchaseForm.subPurchase"
             height="280"
+            border
             @selection-change="handleAddOrEditSubPurchaseSelectionChange"
-            v-loading="appOrModify.loading"
-            border>
+          >
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column label="序号" align="center" width="50" prop="index" />
-            <el-table-column label="采购申请组" align="center" prop="groupId" v-if="false" />
-            <el-table-column label="待采购图书" align="center" prop="entityName" >
+            <el-table-column v-if="false" label="采购申请组" align="center" prop="groupId" />
+            <el-table-column label="待采购图书" align="center" prop="entityName">
               <template slot-scope="slot">
-                <el-input v-if="isEdit" v-model="slot.row.entityName" placeholder="单击前往选择图书..." @focus="openDraw(slot.row,$event)"/>
-                <span v-if="!isEdit">{{slot.row.entityName}}</span>
+                <el-input v-if="isEdit" v-model="slot.row.entityName" placeholder="单击前往选择图书..." @focus="openDraw(slot.row,$event)" />
+                <span v-if="!isEdit">{{ slot.row.entityName }}</span>
               </template>
             </el-table-column>
             <el-table-column label="采购数" align="center" prop="purchaseNumber" width="250">
               <template slot-scope="slot">
-                <el-input-number v-if="isEdit" v-model="slot.row.purchaseNumber" controls-position="right" :min="1" :max="10000"/>
-                <span v-if="!isEdit">{{slot.row.purchaseNumber}}</span>
+                <el-input-number v-if="isEdit" v-model="slot.row.purchaseNumber" controls-position="right" :min="1" :max="10000" />
+                <span v-if="!isEdit">{{ slot.row.purchaseNumber }}</span>
               </template>
             </el-table-column>
             <el-table-column label="计量单位" align="center" prop="utilName" width="200">
@@ -360,28 +374,28 @@
                     :value="option"
                   />
                 </el-select>
-                <span v-if="!isEdit">{{slot.row.utilEntity.name}}</span>
+                <span v-if="!isEdit">{{ slot.row.utilEntity.name }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="备注" align="center" prop="remark" >
+            <el-table-column label="备注" align="center" prop="remark">
               <template slot-scope="slot">
-                <el-input v-if="isEdit" type="textarea" v-model="slot.row.remark" rows="1"></el-input>
-                <span v-if="!isEdit">{{slot.row.remark}}</span>
+                <el-input v-if="isEdit" v-model="slot.row.remark" type="textarea" rows="1" />
+                <span v-if="!isEdit">{{ slot.row.remark }}</span>
               </template>
             </el-table-column>
-<!--            <el-table-column label="状态" align="center" prop="status" v-if="false">-->
-<!--              <template slot-scope="scope">-->
-<!--                <dict-tag :options="dict.type.base_status" :value="scope.row.status"/>-->
-<!--              </template>-->
-<!--            </el-table-column>-->
+            <!--            <el-table-column label="状态" align="center" prop="status" v-if="false">-->
+            <!--              <template slot-scope="scope">-->
+            <!--                <dict-tag :options="dict.type.base_status" :value="scope.row.status"/>-->
+            <!--              </template>-->
+            <!--            </el-table-column>-->
             <el-table-column v-if="isEdit" label="操作" align="center" width="80" class-name="small-padding fixed-width">
               <template slot-scope="scope">
                 <el-button
+                  v-hasPermi="['userApplication:purchaseSub:remove']"
                   size="mini"
                   type="text"
                   icon="el-icon-delete"
                   @click="handleSubPurchaseDelete(scope.row)"
-                  v-hasPermi="['userApplication:purchaseSub:remove']"
                 >删除</el-button>
               </template>
             </el-table-column>
@@ -401,77 +415,81 @@
       </div>
     </el-dialog>
 
-<!--图书选择-->
+    <!--图书选择-->
     <el-dialog
       :title="appOrModify.bookType.title"
       destroy-on-close
       :visible.sync="appOrModify.bookType.drawer"
       width="75%"
-      append-to-body>
-      <ChioseBook v-on:selectedBook="handleBookSelectionChange"/>
+      append-to-body
+    >
+      <ChioseBook @selectedBook="handleBookSelectionChange" />
     </el-dialog>
-<!--部门选择-->
+    <!--部门选择-->
     <el-drawer
-          size="20%"
-          style="z-index: 99;"
-          :title="appOrModify.dept.title"
-          :visible.sync="appOrModify.dept.open"
-          direction="ltr"
-          :before-close="drawerClose">
-      <el-row  type="flex">
+      size="20%"
+      style="z-index: 99;"
+      :title="appOrModify.dept.title"
+      :visible.sync="appOrModify.dept.open"
+      direction="ltr"
+      :before-close="drawerClose"
+    >
+      <el-row type="flex">
         <el-col style="width: 100%">
           <!--部门数据-->
-          <select-tree v-on:selectNode="selectDept"/>
+          <select-tree @selectNode="selectDept" />
         </el-col>
       </el-row>
     </el-drawer>
-<!--审批流程模板选择-->
+    <!--审批流程模板选择-->
     <el-drawer
       size="40%"
       style="z-index: 99;"
       :title="appOrModify.template.title"
       :visible.sync="appOrModify.template.open"
       direction="rtl"
-      :before-close="drawerClose">
-        <ChiosePurchaseTemplate v-on:sure="sureThisTemplate"/>
+      :before-close="drawerClose"
+    >
+      <ChiosePurchaseTemplate @sure="sureThisTemplate" />
     </el-drawer>
 
     <el-drawer
-        :visible.sync="purchaseLink.open"
-        direction="rtl"
-        size="20%"
-      destroy-on-close>
-      <ProcessPreview :title="purchaseLink.title" :purchaseLink="purchaseLink.link.approveId"/>
-<!--        <flow-panel-->
-<!--          :purchase="purchaseLink" :isEdit="false"/>-->
-      </el-drawer>
+      :visible.sync="purchaseLink.open"
+      direction="rtl"
+      size="20%"
+      destroy-on-close
+    >
+      <ProcessPreview :title="purchaseLink.title" :purchase-link="purchaseLink.link.approveId" />
+      <!--        <flow-panel-->
+      <!--          :purchase="purchaseLink" :isEdit="false"/>-->
+    </el-drawer>
   </div>
 </template>
 
 <script>
 
-  import FlowPanel from '@/components/ef/panel'
-import { listPurchase, getPurchase, delPurchase, addPurchase, updatePurchase,approvePurchase, test } from "@/api/userApplication/purchase";
-import { listUtil, allUtil } from "@/api/userApplication/util";
-import { listBook } from "@/api/userApplication/book";
-import { listTemplate,getTemplate } from "@/api/userApplication/template";
-import Template from "../template/index";
-import { treeselect, getDept } from "@/api/system/dept";
-import purchaseSub from"../purchaseSub/index"
-import PurchaseSubTable from "../purchaseSub/purchaseSubTable";
-import { listPurchaseSub, getPurchaseSub, delPurchaseSub, addPurchaseSub, updatePurchaseSub } from "@/api/userApplication/purchaseSub";
-import { getUserProfile } from "@/api/system/user";
-import ShowStatus from "../base/ShowStatus";
-import ApproveStatusTag from "../base/ApproveStatusTag";
-import { bookclasstreeselect } from "@/api/main/bookClass";
-import SelectTree from "../base/libraryElement";
-import HasBook from "../base/HasBook";
-import PurchaseLinkBox from "../base/PurchaseLinkBox";
-  import ChiosePurchaseTemplate from "./ChiosePurchaseTemplate";
-  import ChioseBook from "./ChioseBook";
-  import ProcessPreview from "./ProcessPreview";
+import FlowPanel from '@/components/ef/panel'
+import { listPurchase, getPurchase, delPurchase, addPurchase, updatePurchase, approvePurchase, test } from '@/api/userApplication/purchase'
+import { listUtil, allUtil } from '@/api/userApplication/util'
+import { listBook } from '@/api/userApplication/book'
+import { listTemplate, getTemplate } from '@/api/userApplication/template'
+import Template from '../template/index'
+import { treeselect, getDept } from '@/api/system/dept'
+import purchaseSub from '../purchaseSub/index'
+import PurchaseSubTable from '../purchaseSub/purchaseSubTable'
+import { listPurchaseSub, getPurchaseSub, delPurchaseSub, addPurchaseSub, updatePurchaseSub } from '@/api/userApplication/purchaseSub'
+import { getUserProfile } from '@/api/system/user'
+import ShowStatus from '../base/ShowStatus'
+import ApproveStatusTag from '../base/ApproveStatusTag'
+import { bookclasstreeselect } from '@/api/main/bookClass'
+import SelectTree from '../base/libraryElement'
+import HasBook from '../base/HasBook'
+import PurchaseLinkBox from '../base/PurchaseLinkBox'
+import ChiosePurchaseTemplate from './ChiosePurchaseTemplate'
+import ChioseBook from './ChioseBook'
+import ProcessPreview from './ProcessPreview'
 export default {
-  name: "purchase",
+  name: 'Purchase',
   components: {
     ProcessPreview,
     ChioseBook,
@@ -483,14 +501,14 @@ export default {
     PurchaseSubTable,
     Template,
     purchaseSub,
-    FlowPanel},
-  dicts: ['base_status','library_secrecy_class'],
+    FlowPanel },
+  dicts: ['base_status', 'library_secrecy_class'],
   data() {
     return {
-      isEdit:false,
-      utilList:[{'label':'','value':''}],
-      userId:-1,
-      groupId:-1,
+      isEdit: false,
+      utilList: [{ 'label': '', 'value': '' }],
+      userId: -1,
+      groupId: -1,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -506,7 +524,7 @@ export default {
       // 采购申请信息表格数据
       purchaseList: [],
       // 弹出层标题
-      title: "",
+      title: '',
       // 是否显示弹出层
       open: false,
       // 查询参数
@@ -524,125 +542,125 @@ export default {
         purchaseStatus: null,
         mark: null,
         isDel: null,
-        status: null,
+        status: null
       },
 
-      //主表唯一索引
+      // 主表唯一索引
       expands: [],
-      isOpen:{id:undefined,boo:false},
+      isOpen: { id: undefined, boo: false },
       getRowKeys(row) {
-        return row.id;
+        return row.id
       },
-      purchaseSub:{//子表数据
-        loading:false,
-        page:{
-          total:0,
-          pageNum:10,
-          pageSize:1
+      purchaseSub: { // 子表数据
+        loading: false,
+        page: {
+          total: 0,
+          pageNum: 10,
+          pageSize: 1
         },
-        purchaseSubList:[],
-        query:{},
+        purchaseSubList: [],
+        query: {}
       },
       // 表单参数
-      appOrModify:{
-        loading:false,
-        subIds:[],
-        multiple:true,
-        single:true,
+      appOrModify: {
+        loading: false,
+        subIds: [],
+        multiple: true,
+        single: true,
 
-        //图书选择
-        bookType:{
-          drawer:false,
-          operatorIndex:undefined,
-          title:'请选择待采购的图书（单项选择）',
-          queryBookTypeId:undefined,
-          //图书类别名称
-          bookClassName:'',
+        // 图书选择
+        bookType: {
+          drawer: false,
+          operatorIndex: undefined,
+          title: '请选择待采购的图书（单项选择）',
+          queryBookTypeId: undefined,
+          // 图书类别名称
+          bookClassName: '',
           // defaultProps: {
           //   children: "children",
           //   label: "label"
           // },
-          total:0,
-          queryParams:{
-            pageNum:1,
-            pageSize:10,
-          },
+          total: 0,
+          queryParams: {
+            pageNum: 1,
+            pageSize: 10
+          }
           // 图书类别树选项
           // bookClassOptions: undefined,
         },
 
-        //部门选择
-        dept:{
-          title:'部门选择',
-          open:false,
+        // 部门选择
+        dept: {
+          title: '部门选择',
+          open: false
         },
 
-        //审批流程模板选择
-        template:{
-          open:false,
-          title:'选择采购图书审批流程模板',
-          templateName:'',
-          tempList:[]
+        // 审批流程模板选择
+        template: {
+          open: false,
+          title: '选择采购图书审批流程模板',
+          templateName: '',
+          tempList: []
         }
       },
       purchaseForm: {
-        loading:false,
-        purchase:{
-          id:null,
-          title:null,
-          approvePersonal:null,
-          approveDept:null,
-          approveDeptName:null,
-          startTime:null,
-          endTime:null,
-          termValidity:null,
-          purchaseTemplate:null,
-          purchaseTemplateName:null,
-          purchaseStatus:0,
-          mark:null,
-          isDel:0,
-          status:1,
-          createPersonal:null,
-          createTime:null,
-          updatePersonal:null,
-          updateTime:null
+        loading: false,
+        purchase: {
+          id: null,
+          title: null,
+          approvePersonal: null,
+          approveDept: null,
+          approveDeptName: null,
+          startTime: null,
+          endTime: null,
+          termValidity: null,
+          purchaseTemplate: null,
+          purchaseTemplateName: null,
+          purchaseStatus: 0,
+          mark: null,
+          isDel: 0,
+          status: 1,
+          createPersonal: null,
+          createTime: null,
+          updatePersonal: null,
+          updateTime: null
         },
-        subPurchase:[],
+        subPurchase: []
       },
       pickerOptions: {
         shortcuts: [{
           text: '明天',
           onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() + 3600 * 1000 * 24);
-            picker.$emit('pick', date);
+            const date = new Date()
+            date.setTime(date.getTime() + 3600 * 1000 * 24)
+            picker.$emit('pick', date)
           }
         }, {
           text: '后天',
           onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() + 2 * 3600 * 1000 * 24);
-            picker.$emit('pick', date);
+            const date = new Date()
+            date.setTime(date.getTime() + 2 * 3600 * 1000 * 24)
+            picker.$emit('pick', date)
           }
         }, {
           text: '一周后',
           onClick(picker) {
-            const date = new Date();
-            date.setTime(date.getTime() + 7 * 3600 * 1000 * 24);
-            picker.$emit('pick', date);
+            const date = new Date()
+            date.setTime(date.getTime() + 7 * 3600 * 1000 * 24)
+            picker.$emit('pick', date)
           }
         }]
       },
-      purchaseLink:{
-        open:false,
-        title:'',
-        purchase:{},
-        template:{},
-        link:{
-          approveId:null,
-          node:[],
+      purchaseLink: {
+        open: false,
+        title: '',
+        purchase: {},
+        template: {},
+        link: {
+          approveId: null,
+          node: []
         },
-        showPurchaseId:undefined,//待展示的流程id
+        showPurchaseId: undefined// 待展示的流程id
       },
       // 表单校验
       rules: {
@@ -665,34 +683,34 @@ export default {
         //   util:[{required: true, message: "请选择计量单位", trigger: "blur"}]
         // }
       }
-    };
+    }
   },
   created() {
-    getUserProfile().then(res=>{
-      this.userId =  res.data.userId ;
-    });
-    this.getUtilList();
+    getUserProfile().then(res => {
+      this.userId = res.data.userId
+    })
+    this.getUtilList()
     // const userId = this.$route.params && this.$route.params.userId;
     // this.$modal.msgSuccess( userId );
-    this.getList();
+    this.getList()
   },
   methods: {
     /** 查询采购申请信息列表 */
     getList() {
-      this.loading = true;
+      this.loading = true
       listPurchase(this.queryParams).then(response => {
-        this.purchaseList = response.rows;
-        this.total = response.total;
-        this.loading = false;
-      }).catch(()=>{
-        this.loading = false;
-        this.$modal.msgError("连接超时");
-      });
+        this.purchaseList = response.rows
+        this.total = response.total
+        this.loading = false
+      }).catch(() => {
+        this.loading = false
+        this.$modal.msgError('连接超时')
+      })
     },
     // 取消按钮
     cancel() {
-      this.open = false;
-      this.reset();
+      this.open = false
+      this.reset()
     },
     // 表单重置
     reset() {
@@ -705,7 +723,7 @@ export default {
         endTime: null,
         termValidity: null,
         purchaseTemplate: null,
-        purchaseTemplateName:null,
+        purchaseTemplateName: null,
         purchaseStatus: null,
         mark: null,
         isDel: null,
@@ -714,35 +732,35 @@ export default {
         createTime: null,
         updatePersonal: null,
         updateTime: null
-      };
-      this.resetPurchaseForm();
-      this.resetForm("purchaseForm");
+      }
+      this.resetPurchaseForm()
+      this.resetForm('purchaseForm')
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.queryParams.pageNum = 1;
-      this.getList();
+      this.queryParams.pageNum = 1
+      this.getList()
     },
     /** 重置按钮操作 */
     resetQuery() {
-      this.resetForm("queryForm");
-      this.handleQuery();
+      this.resetForm('queryForm')
+      this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id);
-      this.single = selection.length!==1;
+      this.ids = selection.map(item => item.id)
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset();
-      this.isEdit = true;
-      this.open = true;
-      this.title = "添加采购申请信息";
+      this.reset()
+      this.isEdit = true
+      this.open = true
+      this.title = '添加采购申请信息'
     },
     /** 查看处理流程 */
-    handleBrowseLink(row){
+    handleBrowseLink(row) {
       // this.purchaseLink.template={};
       // this.purchaseLink.showPurchaseId = row.purchaseTemplate;
       // getTemplate(this.purchaseLink.showPurchaseId).then(res=>{
@@ -750,276 +768,274 @@ export default {
       //   this.purchaseLink.template= res.data;
       //
       //   this.purchaseLink.title = '关于《'+row.title+'》的申请处理流程状态如下所示：';
-        this.purchaseLink.open = true;
-        this.purchaseLink.title = row.title;
+      this.purchaseLink.open = true
+      this.purchaseLink.title = row.title
       // });
-      //@TODO 查询流程结点
-      this.purchaseLink.link.approveId = row.id;
-      this.purchaseLink.link.node = [];
-
+      // @TODO 查询流程结点
+      this.purchaseLink.link.approveId = row.id
+      this.purchaseLink.link.node = []
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.purchaseForm.loading = true;
+      this.purchaseForm.loading = true
 
-      this.isEdit = row.purchaseStatus=='0' && this.userId == row.createPersonal;
+      this.isEdit = row.purchaseStatus == '0' && this.userId == row.createPersonal
 
-      this.reset();
-      const id = row.id || this.ids;
+      this.reset()
+      const id = row.id || this.ids
       getPurchase(id).then(response => {
-        this.purchaseForm.purchase = response.data;
-        this.title = "修改采购申请信息";
-      }).then(()=>{
+        this.purchaseForm.purchase = response.data
+        this.title = '修改采购申请信息'
+      }).then(() => {
         // @TODO 获取部门信息
-        this.getPurchaseDeptInfo();//
-      }).then(()=>{
-        this.getApproveLinkTemplateInfo();
+        this.getPurchaseDeptInfo()//
+      }).then(() => {
+        this.getApproveLinkTemplateInfo()
         // @TODO 获取审批流程模板信息
-      }).then(()=>{
-        this.getSubPurchaseInfo();
-        this.open = true;
+      }).then(() => {
+        this.getSubPurchaseInfo()
+        this.open = true
         // @TODO 获取审批子表信息
-        this.purchaseForm.loading = false;
-      }).catch(()=>{
-        this.open = false;
-        this.purchaseForm.loading = false;
-          this.$modal.msgSuccess("数据获取异常");
-      });
+        this.purchaseForm.loading = false
+      }).catch(() => {
+        this.open = false
+        this.purchaseForm.loading = false
+        this.$modal.msgSuccess('数据获取异常')
+      })
     },
 
-    /*获取部门信息*/
-    getPurchaseDeptInfo(){
-      if (undefined != this.purchaseForm.purchase && undefined != this.purchaseForm.purchase.approveDept){
-        getDept(this.purchaseForm.purchase.approveDept).then(res=>{
-          let deptData = res.data;
-          this.purchaseForm.purchase.approveDept = deptData.deptId;
-          this.purchaseForm.purchase.approveDeptName = deptData.deptName;
-          return true;
-        }).catch(()=>{
-          return false;
-        });
+    /* 获取部门信息*/
+    getPurchaseDeptInfo() {
+      if (undefined != this.purchaseForm.purchase && undefined != this.purchaseForm.purchase.approveDept) {
+        getDept(this.purchaseForm.purchase.approveDept).then(res => {
+          const deptData = res.data
+          this.purchaseForm.purchase.approveDept = deptData.deptId
+          this.purchaseForm.purchase.approveDeptName = deptData.deptName
+          return true
+        }).catch(() => {
+          return false
+        })
       }
     },
-    /*获取审批流程模板信息*/
-    getApproveLinkTemplateInfo(){
-      if (undefined != this.purchaseForm.purchase){
-        getTemplate(this.purchaseForm.purchase.purchaseTemplate).then(res=>{
-          let templateData = res.data;
-          if (undefined == templateData || templateData == null){
-            return false;
+    /* 获取审批流程模板信息*/
+    getApproveLinkTemplateInfo() {
+      if (undefined != this.purchaseForm.purchase) {
+        getTemplate(this.purchaseForm.purchase.purchaseTemplate).then(res => {
+          const templateData = res.data
+          if (undefined == templateData || templateData == null) {
+            return false
           }
-          this.purchaseForm.purchase.purchaseTemplate = templateData.id;
-          this.purchaseForm.purchase.purchaseTemplateName = templateData.title;
-          return true;
-        }).catch(()=>{
-          return false;
-        });
+          this.purchaseForm.purchase.purchaseTemplate = templateData.id
+          this.purchaseForm.purchase.purchaseTemplateName = templateData.title
+          return true
+        }).catch(() => {
+          return false
+        })
       }
     },
-    /*获取审批子表信息*/
-    getSubPurchaseInfo(){
-      if (undefined != this.purchaseForm.purchase && undefined != this.purchaseForm.purchase.id){
-        let subQuery = {
-          'groupId':this.purchaseForm.purchase.id,
-          'status':'1',
-          'isDel':'0'
-        };
+    /* 获取审批子表信息*/
+    getSubPurchaseInfo() {
+      if (undefined != this.purchaseForm.purchase && undefined != this.purchaseForm.purchase.id) {
+        const subQuery = {
+          'groupId': this.purchaseForm.purchase.id,
+          'status': '1',
+          'isDel': '0'
+        }
         listPurchaseSub(subQuery).then(response => {
-          if(undefined == response.rows){
-            return;
+          if (undefined == response.rows) {
+            return
           }
 
           // @TODO this.purchaseForm.purchase.subPurchase = [];
-          this.purchaseForm.subPurchase = [];
-          for(let i=0;i<response.rows.length;i++){
-            let subData = {
-              id:response.rows[i].id,
-              groupId:response.rows[i].groupId,
-              entityId:response.rows[i].entityId,
-              entityName:response.rows[i].entityName,
-              purchaseNumber:response.rows[i].purchaseNumber,
-              purchaseOverNumber:response.rows[i].purchaseOverNumber,
+          this.purchaseForm.subPurchase = []
+          for (let i = 0; i < response.rows.length; i++) {
+            const subData = {
+              id: response.rows[i].id,
+              groupId: response.rows[i].groupId,
+              entityId: response.rows[i].entityId,
+              entityName: response.rows[i].entityName,
+              purchaseNumber: response.rows[i].purchaseNumber,
+              purchaseOverNumber: response.rows[i].purchaseOverNumber,
               util: response.rows[i].util,
-              utilName:response.rows[i].utilName,
-              utilEntity:{id:response.rows[i].util,name:response.rows[i].utilName},
-              remark:response.rows[i].remark,
-              isDel:response.rows[i].isDel,
-              status:response.rows[i].status,
-              createPersonal:response.rows[i].createPersonal,
-              createTime:response.rows[i].createTime,
-              updatePersonal:response.rows[i].updatePersonal,
-              updateTime:response.rows[i].updateTime,
-              index: i+1
-            };
-            this.purchaseForm.subPurchase.push(subData);
+              utilName: response.rows[i].utilName,
+              utilEntity: { id: response.rows[i].util, name: response.rows[i].utilName },
+              remark: response.rows[i].remark,
+              isDel: response.rows[i].isDel,
+              status: response.rows[i].status,
+              createPersonal: response.rows[i].createPersonal,
+              createTime: response.rows[i].createTime,
+              updatePersonal: response.rows[i].updatePersonal,
+              updateTime: response.rows[i].updateTime,
+              index: i + 1
+            }
+            this.purchaseForm.subPurchase.push(subData)
           }
 
-          return true;
-        }).catch(()=>{
-          return false;
-        });
+          return true
+        }).catch(() => {
+          return false
+        })
       }
     },
 
-    getUtilList(){
-      let utilQuery = {
-        'status':'1',
-        'isDel':'0',
-      };
-      allUtil(utilQuery).then(res=>{
-        if (undefined == res.data){
-          this.utilList = [];
-        }else{
-          this.utilList = [];
-          for (let i=0;i<res.data.length;i++){
-            this.utilList.push(res.data[i]);
+    getUtilList() {
+      const utilQuery = {
+        'status': '1',
+        'isDel': '0'
+      }
+      allUtil(utilQuery).then(res => {
+        if (undefined == res.data) {
+          this.utilList = []
+        } else {
+          this.utilList = []
+          for (let i = 0; i < res.data.length; i++) {
+            this.utilList.push(res.data[i])
           }
         }
-      });
+      })
     },
     /** 提交按钮 */
     submitForm() {
-      this.$refs["form"].validate(valid => {
+      this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id != null) {
             updatePurchase(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('修改成功')
+              this.open = false
+              this.getList()
+            })
           } else {
             addPurchase(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
+              this.$modal.msgSuccess('新增成功')
+              this.open = false
+              this.getList()
+            })
           }
         }
-      });
+      })
     },
 
-
-    hasSubList(){
-      return undefined == this.purchaseForm.subPurchase
-        || null == this.purchaseForm.subPurchase
-        || this.purchaseForm.subPurchase.length<=0;
+    hasSubList() {
+      return undefined == this.purchaseForm.subPurchase ||
+        this.purchaseForm.subPurchase == null ||
+        this.purchaseForm.subPurchase.length <= 0
     },
     /** 提交并保存按钮 */
     submitSaveForm() {
-      if(!this.ruleSubmit()) {
-        return;
+      if (!this.ruleSubmit()) {
+        return
       }
-      if(this.hasSubList()){
-        this.$modal.confirm('未填写采购申请项目列表，确认继续操作？').then(()=> {
-          this.save();
-        }).catch(()=>{return false;})
-      }else {
-        this.save();
+      if (this.hasSubList()) {
+        this.$modal.confirm('未填写采购申请项目列表，确认继续操作？').then(() => {
+          this.save()
+        }).catch(() => { return false })
+      } else {
+        this.save()
       }
     },
-    save(){
+    save() {
       if (undefined != this.purchaseForm.purchase.id && this.purchaseForm.purchase.id != null) {
         // this.refulshUtil();
         updatePurchase(this.purchaseForm).then(response => {
-          this.$modal.msgSuccess("修改成功");
-          this.open = false;
-          this.getList();
-        }).catch(err=>{
-          this.$modal.msgSuccess("系统繁忙，操作失败");
-          this.open = false;
-        });
+          this.$modal.msgSuccess('修改成功')
+          this.open = false
+          this.getList()
+        }).catch(err => {
+          this.$modal.msgSuccess('系统繁忙，操作失败')
+          this.open = false
+        })
       } else {
         // this.refulshUtil();
         addPurchase(this.purchaseForm).then(response => {
-          this.$modal.msgSuccess("新增成功");
-          this.open = false;
-          this.getList();
-        }).catch(err=>{
-          this.$modal.msgSuccess("系统繁忙，操作失败");
-          this.open = false;
-        });
+          this.$modal.msgSuccess('新增成功')
+          this.open = false
+          this.getList()
+        }).catch(err => {
+          this.$modal.msgSuccess('系统繁忙，操作失败')
+          this.open = false
+        })
       }
     },
-    refulshUtil(){
+    refulshUtil() {
       // util保存了util实体信息，提交的信息只要util的计量单位ID，以及将utilName；
-      if (undefined != this.purchaseForm.subPurchase && null != this.purchaseForm.subPurchase){
-        for (let i=0;i<this.purchaseForm.subPurchase.length;i++){
-          if(undefined == this.purchaseForm.subPurchase[i].utilEntity || null == this.purchaseForm.subPurchase[i].utilEntity){
-            continue;
+      if (undefined != this.purchaseForm.subPurchase && this.purchaseForm.subPurchase != null) {
+        for (let i = 0; i < this.purchaseForm.subPurchase.length; i++) {
+          if (undefined == this.purchaseForm.subPurchase[i].utilEntity || this.purchaseForm.subPurchase[i].utilEntity == null) {
+            continue
           }
-          this.purchaseForm.subPurchase[i].utilName = this.purchaseForm.subPurchase[i].utilEntity.name;
-          this.purchaseForm.subPurchase[i].util = this.purchaseForm.subPurchase[i].utilEntity.id;
+          this.purchaseForm.subPurchase[i].utilName = this.purchaseForm.subPurchase[i].utilEntity.name
+          this.purchaseForm.subPurchase[i].util = this.purchaseForm.subPurchase[i].utilEntity.id
         }
       }
     },
 
-    //对提交信息进行校验
-    ruleSubmit(){
-      let purchaseEntity = this.purchaseForm.purchase;
-      if (undefined == purchaseEntity.title || null == purchaseEntity.title || purchaseEntity.title==''){
-        this.$modal.msgError('采购申请标题不能为空');
-        return false;
+    // 对提交信息进行校验
+    ruleSubmit() {
+      const purchaseEntity = this.purchaseForm.purchase
+      if (undefined == purchaseEntity.title || purchaseEntity.title == null || purchaseEntity.title == '') {
+        this.$modal.msgError('采购申请标题不能为空')
+        return false
       }
-      if(undefined == purchaseEntity.approveDept || null == purchaseEntity.approveDept){
-        this.$modal.msgError('采购申请部门不能为空');
-        return false;
+      if (undefined == purchaseEntity.approveDept || purchaseEntity.approveDept == null) {
+        this.$modal.msgError('采购申请部门不能为空')
+        return false
       }
-      if(undefined == purchaseEntity.purchaseTemplate || null == purchaseEntity.purchaseTemplate){
-        this.$modal.msgError('审批处理流程不能为空');
-        return false;
+      if (undefined == purchaseEntity.purchaseTemplate || purchaseEntity.purchaseTemplate == null) {
+        this.$modal.msgError('审批处理流程不能为空')
+        return false
       }
-      if(undefined == purchaseEntity.termValidity || null == purchaseEntity.termValidity){
-        this.$modal.msgError('申请截止日期不能为空');
-        return false;
+      if (undefined == purchaseEntity.termValidity || purchaseEntity.termValidity == null) {
+        this.$modal.msgError('申请截止日期不能为空')
+        return false
       }
-      let purchaseSubList = this.purchaseForm.subPurchase;
-      if(this.hasSubList()){
-        return false;
+      const purchaseSubList = this.purchaseForm.subPurchase
+      if (this.hasSubList()) {
+        return false
       }
 
-      for (let i=0;i<purchaseSubList.length;i++){
-        if(undefined == purchaseSubList[i] || null == purchaseSubList[i]){
-          this.$modal.msgError('第'+(i+1)+'个申请项填写信息不完整');
-          return false;
+      for (let i = 0; i < purchaseSubList.length; i++) {
+        if (undefined == purchaseSubList[i] || purchaseSubList[i] == null) {
+          this.$modal.msgError('第' + (i + 1) + '个申请项填写信息不完整')
+          return false
         }
-        if (undefined == purchaseSubList[i].entityId || null == purchaseSubList[i].entityId ){
-          this.$modal.msgError('填写信息不完整，第'+(i+1)+'个申请项缺少申请物品');
-          return false;
+        if (undefined == purchaseSubList[i].entityId || purchaseSubList[i].entityId == null) {
+          this.$modal.msgError('填写信息不完整，第' + (i + 1) + '个申请项缺少申请物品')
+          return false
         }
-        if (undefined == purchaseSubList[i].purchaseNumber || null == purchaseSubList[i].purchaseNumber ){
-          this.$modal.msgError('填写信息不完整，第'+(i+1)+'个申请项缺少申请数量');
-          return false;
+        if (undefined == purchaseSubList[i].purchaseNumber || purchaseSubList[i].purchaseNumber == null) {
+          this.$modal.msgError('填写信息不完整，第' + (i + 1) + '个申请项缺少申请数量')
+          return false
         }
-        if (undefined == purchaseSubList[i].utilEntity || null == purchaseSubList[i].utilEntity ){
-          this.$modal.msgError('填写信息不完整，第'+(i+1)+'个申请项缺少计量单位');
-          return false;
+        if (undefined == purchaseSubList[i].utilEntity || purchaseSubList[i].utilEntity == null) {
+          this.$modal.msgError('填写信息不完整，第' + (i + 1) + '个申请项缺少计量单位')
+          return false
         }
-        this.purchaseForm.subPurchase[i].utilName = purchaseSubList[i].utilEntity.name;
-        this.purchaseForm.subPurchase[i].util = purchaseSubList[i].utilEntity.id;
+        this.purchaseForm.subPurchase[i].utilName = purchaseSubList[i].utilEntity.name
+        this.purchaseForm.subPurchase[i].util = purchaseSubList[i].utilEntity.id
       }
-      return true;
+      return true
     },
     /** 提交并申请按钮 */
     submitApproveForm() {
-      if(!this.ruleSubmit()) {
-        return;
+      if (!this.ruleSubmit()) {
+        return
       }
-      if(this.hasSubList()){
-        this.$modal.confirm('未填写采购申请项目列表，确认继续操作？').then(()=> {
-          this.approve();
-        }).catch(()=>{return false;})
-      }else{
-        this.approve();
+      if (this.hasSubList()) {
+        this.$modal.confirm('未填写采购申请项目列表，确认继续操作？').then(() => {
+          this.approve()
+        }).catch(() => { return false })
+      } else {
+        this.approve()
       }
     },
-    approve(){
+    approve() {
       if (this.purchaseForm.purchase.id != null) {
         // this.refulshUtil();
         approvePurchase(this.purchaseForm).then(response => {
-          this.$modal.msgSuccess("修改成功");
-          this.open = false;
-          this.getList();
-        });
+          this.$modal.msgSuccess('修改成功')
+          this.open = false
+          this.getList()
+        })
       }
       // else {
       //   // this.refulshUtil();
@@ -1032,13 +1048,13 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
+      const ids = row.id || this.ids
       this.$modal.confirm('是否确认删除采购申请信息编号为"' + ids + '"的数据项？').then(function() {
-        return delPurchase(ids);
+        return delPurchase(ids)
       }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+        this.getList()
+        this.$modal.msgSuccess('删除成功')
+      }).catch(() => {})
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -1047,222 +1063,217 @@ export default {
       }, `purchase_${new Date().getTime()}.xlsx`)
     },
 
-
-// 点击行展开事件
+    // 点击行展开事件
     clickTable(row, index, e) {
-      this.$refs.refTable.toggleRowExpansion(row);
+      this.$refs.refTable.toggleRowExpansion(row)
     },
-    expandSelect(row, expandedRows){
-      this.purchaseSub.purchaseSubList = [];//打开或关闭子表时先清空子表数据
+    expandSelect(row, expandedRows) {
+      this.purchaseSub.purchaseSubList = []// 打开或关闭子表时先清空子表数据
 
-      /**打开子表只展示一个子表，其他子表闭合**/
-      let that = this;
+      /** 打开子表只展示一个子表，其他子表闭合**/
+      const that = this
       if (expandedRows.length) {
-        that.expands = [];
+        that.expands = []
         if (row) {
-          that.expands.push(row.id); // 每次push进去的是每行的ID
+          that.expands.push(row.id) // 每次push进去的是每行的ID
         }
       } else {
-        that.expands = []; // 默认不展开
+        that.expands = [] // 默认不展开
       }
 
-      this.groupId = row.id;
-      this.getPurchaseSubList(row.id);
+      this.groupId = row.id
+      this.getPurchaseSubList(row.id)
     },
 
-
-    /**子表数据获取**/
+    /** 子表数据获取**/
     getPurchaseSubList(group_id) {
       // this.$modal.msgSuccess(group_id);
-      this.purchaseSub.loading = true;
-      this.purchaseSub.query.groupId = group_id;
+      this.purchaseSub.loading = true
+      this.purchaseSub.query.groupId = group_id
       listPurchaseSub(this.purchaseSub.query).then(response => {
-        this.purchaseSub.purchaseSubList = response.rows;
-        this.purchaseSub.page.total = response.total;
-        this.purchaseSub.loading = false;
-      });
+        this.purchaseSub.purchaseSubList = response.rows
+        this.purchaseSub.page.total = response.total
+        this.purchaseSub.loading = false
+      })
     },
-    /**新增时增加一条子表记录**/
-    handleSubPurchaseAdd(){
-      let index = this.purchaseForm.subPurchase.length;
-      if (index<=0){
-        index = 1;
-      }else{
-        index = this.purchaseForm.subPurchase[index-1].index+1;
+    /** 新增时增加一条子表记录**/
+    handleSubPurchaseAdd() {
+      let index = this.purchaseForm.subPurchase.length
+      if (index <= 0) {
+        index = 1
+      } else {
+        index = this.purchaseForm.subPurchase[index - 1].index + 1
       }
-      let row = {
-        'index':index,
-        'entityName':null,
-        'entityId':null,
-        'purchaseNumber':1,
-        'util':null,
-        'utilEntity':null,
-        'utilName':'',
-        'mark':''
-      };
-      this.purchaseForm.subPurchase.push(row);
+      const row = {
+        'index': index,
+        'entityName': null,
+        'entityId': null,
+        'purchaseNumber': 1,
+        'util': null,
+        'utilEntity': null,
+        'utilName': '',
+        'mark': ''
+      }
+      this.purchaseForm.subPurchase.push(row)
     },
     // 新增或修改数据时子表多选框选中数据
     handleAddOrEditSubPurchaseSelectionChange(selection) {
-      this.appOrModify.subIds = selection.map(item => item.index);
-      this.appOrModify.single = selection.length!==1;
-      this.appOrModify.multiple = !selection.length;
+      this.appOrModify.subIds = selection.map(item => item.index)
+      this.appOrModify.single = selection.length !== 1
+      this.appOrModify.multiple = !selection.length
     },
-    /**删除一条记录**/
-    handleSubPurchaseDelete(row){
+    /** 删除一条记录**/
+    handleSubPurchaseDelete(row) {
       this.$modal.confirm('是否确认移除第' + row.index + '条数据项？').then(function() {
-        return true;
+        return true
       }).then(() => {
         // this.getStockList();
-        this.removeSubItem([row.index]);
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
-
+        this.removeSubItem([row.index])
+        this.$modal.msgSuccess('删除成功')
+      }).catch(() => {})
     },
-    handleSubPurchaseDeletes(){
-      let removeLen = this.appOrModify.subIds.length;
+    handleSubPurchaseDeletes() {
+      const removeLen = this.appOrModify.subIds.length
       this.$modal.confirm('是否确认移除这' + removeLen + '条数据项？').then(function() {
-        return true;
+        return true
       }).then(() => {
-        this.removeSubItem(this.appOrModify.subIds);
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+        this.removeSubItem(this.appOrModify.subIds)
+        this.$modal.msgSuccess('删除成功')
+      }).catch(() => {})
     },
-    removeSubItem(item_index_arr){
-      if (! typeof( item_index_arr) instanceof Array){
-        return false;
+    removeSubItem(item_index_arr) {
+      if (!typeof (item_index_arr) instanceof Array) {
+        return false
       }
-      for(let index=0;index<item_index_arr.length;index++) {
+      for (let index = 0; index < item_index_arr.length; index++) {
         for (let i = 0; i < this.purchaseForm.subPurchase.length; i++) {
           if (this.purchaseForm.subPurchase[i].index === item_index_arr[index]) {
-            this.purchaseForm.subPurchase.splice(i, 1);
-            break;
+            this.purchaseForm.subPurchase.splice(i, 1)
+            break
           }
         }
       }
-      return true;
+      return true
     },
 
-
-    //重置 提交或修改 的表单
-    resetPurchaseForm(){
+    // 重置 提交或修改 的表单
+    resetPurchaseForm() {
       this.purchaseForm = {
-        purchase:{
-          id:null,
-          title:null,
-          approvePersonal:null,
-          approveDept:null,
-          approveDeptName:null,
-          startTime:null,
-          endTime:null,
-          termValidity:null,
-          purchaseTemplate:null,
-          purchaseTemplateName:null,
-          purchaseStatus:0,
-          mark:null,
-          isDel:0,
-          status:1,
-          createPersonal:null,
-          createTime:null,
-          updatePersonal:null,
-          updateTime:null
+        purchase: {
+          id: null,
+          title: null,
+          approvePersonal: null,
+          approveDept: null,
+          approveDeptName: null,
+          startTime: null,
+          endTime: null,
+          termValidity: null,
+          purchaseTemplate: null,
+          purchaseTemplateName: null,
+          purchaseStatus: 0,
+          mark: null,
+          isDel: 0,
+          status: 1,
+          createPersonal: null,
+          createTime: null,
+          updatePersonal: null,
+          updateTime: null
         },
-        subPurchase:[]
-      };
+        subPurchase: []
+      }
     },
 
-    /*选择图书*/
-    openDraw(row,event) {
-      event.target.blur();
+    /* 选择图书*/
+    openDraw(row, event) {
+      event.target.blur()
       // this.getTreeselect();//获取图书类别
-      this.appOrModify.bookType.operatorIndex = row.index;
-      this.appOrModify.bookType.drawer = true;
+      this.appOrModify.bookType.operatorIndex = row.index
+      this.appOrModify.bookType.drawer = true
     },
 
-    /**关闭抽屉**/
-    drawerClose(done){
-      done();
+    /** 关闭抽屉**/
+    drawerClose(done) {
+      done()
     },
 
     /**/
-    utilChange(value){
+    utilChange(value) {
 
     },
 
     // 图书类别节点单击事件
     selectBookType(selectData) {
-      this.appOrModify.bookType.bookClassName = selectData.curData.label;
-      this.appOrModify.bookType.queryBookTypeId = selectData.curData.id;
+      this.appOrModify.bookType.bookClassName = selectData.curData.label
+      this.appOrModify.bookType.queryBookTypeId = selectData.curData.id
       // this.form.claz = data.id;
-      this.appOrModify.bookType.queryParams.type=this.appOrModify.bookType.queryBookTypeId;
-      this.getBookList();
+      this.appOrModify.bookType.queryParams.type = this.appOrModify.bookType.queryBookTypeId
+      this.getBookList()
     },
 
     /** 查询图书实体信息列表 */
     getBookList() {
-      this.appOrModify.bookType.loading = true;
+      this.appOrModify.bookType.loading = true
       listBook(this.appOrModify.bookType.queryParams).then(response => {
-        this.appOrModify.bookType.bookList = response.rows;
-        this.appOrModify.bookType.total = response.total;
-        this.appOrModify.bookType.loading = false;
-      });
+        this.appOrModify.bookType.bookList = response.rows
+        this.appOrModify.bookType.total = response.total
+        this.appOrModify.bookType.loading = false
+      })
     },
     // 选中图书数据
     handleBookSelectionChange(selection) {
       for (let i = 0; i < this.purchaseForm.subPurchase.length; i++) {
         if (this.purchaseForm.subPurchase[i].index === this.appOrModify.bookType.operatorIndex) {
-          let bookName = selection.name;
-          this.$modal.confirm('确认选择'+bookName+'吗？').then(function() {
-            return true;
+          const bookName = selection.name
+          this.$modal.confirm('确认选择' + bookName + '吗？').then(function() {
+            return true
           }).then(() => {
-            this.appOrModify.loading = true;
-            this.purchaseForm.subPurchase[i].entityId = selection.id;
-            this.purchaseForm.subPurchase[i].entityName = selection.name;
-            this.appOrModify.bookType.drawer = false;
-            this.appOrModify.loading = false;
-          }).catch(() => {});
-          return;
+            this.appOrModify.loading = true
+            this.purchaseForm.subPurchase[i].entityId = selection.id
+            this.purchaseForm.subPurchase[i].entityName = selection.name
+            this.appOrModify.bookType.drawer = false
+            this.appOrModify.loading = false
+          }).catch(() => {})
+          return
         }
       }
     },
 
     // 部门树节点单击事件
     selectDept(selectData) {
-      this.purchaseForm.purchase.approveDept = selectData.curData.id;
-      this.purchaseForm.purchase.approveDeptName = selectData.curData.label;
-      this.appOrModify.dept.open = false;
+      this.purchaseForm.purchase.approveDept = selectData.curData.id
+      this.purchaseForm.purchase.approveDeptName = selectData.curData.label
+      this.appOrModify.dept.open = false
     },
-    openDeptDraw(event){
-      event.target.blur();
-      this.appOrModify.dept.open = true;
+    openDeptDraw(event) {
+      event.target.blur()
+      this.appOrModify.dept.open = true
     },
 
-    //**流程审批模板选择**//
-    openPurchaseTemplateDraw(event){
-      event.target.blur();
+    //* *流程审批模板选择**//
+    openPurchaseTemplateDraw(event) {
+      event.target.blur()
       // this.getTemplateList();
-      this.appOrModify.template.open = true;
+      this.appOrModify.template.open = true
     },
 
-
-    //获取模板信息
+    // 获取模板信息
     // getTemplateList(){
     //   listTemplate().then(res=>{
     //     this.appOrModify.template.templateList=res.data;
     //   });
     // },
 
-    //确认选择此模板
-    sureThisTemplate(row){
-      this.$modal.confirm('是否确认选择《'+row.title+'》作为审批流程？').then(function() {
-        return true;
+    // 确认选择此模板
+    sureThisTemplate(row) {
+      this.$modal.confirm('是否确认选择《' + row.title + '》作为审批流程？').then(function() {
+        return true
       }).then(() => {
-        this.purchaseForm.purchase.purchaseTemplateName = row.title;
-        this.purchaseForm.purchase.purchaseTemplate = row.id;
-        this.appOrModify.template.open = false;
-      }).catch(() => {});
+        this.purchaseForm.purchase.purchaseTemplateName = row.title
+        this.purchaseForm.purchase.purchaseTemplate = row.id
+        this.appOrModify.template.open = false
+      }).catch(() => {})
     }
-  },
+  }
 
-};
+}
 </script>
